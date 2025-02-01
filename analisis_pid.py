@@ -113,7 +113,7 @@ with col2:
 st.subheader("🔒 Función de Transferencia en Lazo Cerrado")
 latex_H = fr'''
     H(s) = \frac{{G(s)}}{{1 + G(s)}} = 
-    \frac{{{kd} s^2 + {kp} s + {ki}}}{{s^3 + {3 + kd} s^2 + {round(2 + kp,2)} s + {ki}}}
+    \frac{{{kd} s^2 + {kp} s + {ki}}}{{s^3 + {round(3 + kd,2)} s^2 + {round(2 + kp,2)} s + {ki}}}
 '''
 st.latex(latex_H)
 
