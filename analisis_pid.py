@@ -52,27 +52,13 @@ def generate_analysis_from_data(t, y, kp, ki, kd):
     Analiza estos resultados y proporciona recomendaciones para mejorar el rendimiento del sistema. Considera los siguientes puntos en tu análisis:
     1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema.
     2. Sugiere ajustes a los parámetros PID (Kp, Ki, Kd) para mejorar la estabilidad, el tiempo de respuesta y reducir el sobreimpulso.
+    En lo posible recomienda valores de (Kp, Ki, Kd) para repsuestas rapidas, más lentas y agresivas del sistema, ojo deben estar en el rango propuesto de valores
     3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
     4. Analiza las implicaciones de cada parámetro para la estabilidad y el comportamiento transitorio del sistema.
     """
     model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(prompt)
     return response.text
-
-# Función para obtener parámetros clave del gráfico
-def analyze_step_response(t, y):
-    # Tiempo de asentamiento (settling time) - tiempo donde la respuesta está dentro del 2% del valor final
-    settling_time = t[np.where(np.abs(y - y[-1]) < 0.02 * y[-1])[0][0]]
-    
-    # Tiempo de subida (rise time) - tiempo que tarda en alcanzar el 90% del valor final
-    rise_time = t[np.where(y >= 0.9 * y[-1])[0][0]]
-    
-    # Sobreimpulso (overshoot) - cuánto se excede el valor final en términos porcentuales
-    overshoot = (max(y) - y[-1]) / y[-1] * 100
-    
-    # Error en estado estacionario (si se considera el valor final)
-    steady_state_error = y[-1] - y[-1]  # Siempre será cero en un sistema ideal
-    return settling_time, rise_time, overshoot, steady_state_error
 
 # Interfaz en Streamlit
 st.title("⚙️ Análisis de Control PID")
@@ -138,16 +124,6 @@ ax.set_ylabel("Salida")
 ax.set_title("Respuesta a una entrada escalón")
 ax.legend()
 st.pyplot(fig)
-
-# Análisis de la respuesta
-settling_time, rise_time, overshoot, steady_state_error = analyze_step_response(t, y)
-
-# Mostrar el análisis en Streamlit
-st.subheader("🔍 Análisis de la Respuesta:")
-st.write(f"📊 **Tiempo de Asentamiento (Settling Time):** {settling_time:.2f} segundos")
-st.write(f"📊 **Tiempo de Subida (Rise Time):** {rise_time:.2f} segundos")
-st.write(f"📊 **Sobreimpulso (Overshoot):** {overshoot:.2f}%")
-st.write(f"📊 **Error en Estado Estacionario:** {steady_state_error:.2f}")
 
 #Generar insights 
 if st.button("🔍 Generar Análisis desde los Datos"):
