@@ -22,28 +22,38 @@ model = genai.GenerativeModel(
 )
 
 # Enviar esta información a la IA (Gemini) para un análisis detallado
-def generate_analysis_from_graph(settling_time, rise_time, overshoot, steady_state_error):
-    """Genera un análisis de la respuesta del sistema usando IA basado en los valores extraídos del gráfico."""
+def generate_analysis_from_data(t, y, kp, ki, kd):
+    """Genera un análisis del sistema usando IA basado en los datos de la respuesta y el tiempo."""
+    
+    # Calcular parámetros a partir de la respuesta
+    settling_time = t[np.where(np.abs(y - y[-1]) < 0.02 * y[-1])[0][0]]
+    rise_time = t[np.where(y >= 0.9 * y[-1])[0][0]]
+    overshoot = (max(y) - y[-1]) / y[-1] * 100
+    steady_state_error = y[-1] - y[-1]  # Se puede ajustar para otros tipos de error si es necesario
+    
+    # Crear el prompt para la IA
     prompt = f"""
-Se ha realizado una simulación de un sistema de control PID en lazo cerrado con los siguientes parámetros PID:
+    Se ha simulado un sistema de control PID en lazo cerrado con los siguientes parámetros PID:
+    - **Kp (Proporcional)**: {kp}
+    - **Ki (Integral)**: {ki}
+    - **Kd (Derivativo)**: {kd}
 
-- **Kp (Proporcional)**: {kp}
-- **Ki (Integral)**: {ki}
-- **Kd (Derivativo)**: {kd}
+    Los datos de la respuesta del sistema a un escalón son los siguientes:
+    - **Tiempo de Asentamiento**: {settling_time:.2f} segundos
+    - **Tiempo de Subida**: {rise_time:.2f} segundos
+    - **Sobreimpulso**: {overshoot:.2f}%
+    - **Error en Estado Estacionario**: {steady_state_error:.2f}
 
-Los resultados obtenidos de la respuesta a un escalón son los siguientes:
+    Los vectores de tiempo (t) y respuesta (y) son los siguientes:
 
-- **Tiempo de Asentamiento**: {settling_time:.2f} segundos (Tiempo en el que la salida permanece dentro del 2% del valor final).
-- **Tiempo de Subida**: {rise_time:.2f} segundos (Tiempo que tarda el sistema en alcanzar el 90% del valor final).
-- **Sobreimpulso**: {overshoot:.2f}% (El exceso máximo sobre el valor final antes de estabilizarse).
-- **Error en Estado Estacionario**: {steady_state_error:.2f} (Diferencia entre la salida final y el valor deseado).
+    - **Tiempo (t)**: {list(t)}
+    - **Respuesta (y)**: {list(y)}
 
-Considera los siguientes puntos en tu análisis:
-1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema.
-2. Sugiere ajustes a los parámetros PID (Kp, Ki, Kd) para mejorar la estabilidad, el tiempo de respuesta y reducir el sobreimpulso.
-3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
-4. Analiza las implicaciones de cada parámetro para la estabilidad y el comportamiento transitorio del sistema.
-    Recuerda solo empieza dandome las respuestas tecnicas sin iniciar el chat como usualmente lo haces 
+    Analiza estos resultados y proporciona recomendaciones para mejorar el rendimiento del sistema. Considera los siguientes puntos en tu análisis:
+    1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema.
+    2. Sugiere ajustes a los parámetros PID (Kp, Ki, Kd) para mejorar la estabilidad, el tiempo de respuesta y reducir el sobreimpulso.
+    3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
+    4. Analiza las implicaciones de cada parámetro para la estabilidad y el comportamiento transitorio del sistema.
     """
     model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(prompt)
@@ -113,7 +123,7 @@ with col2:
 st.subheader("🔒 Función de Transferencia en Lazo Cerrado")
 latex_H = fr'''
     H(s) = \frac{{G(s)}}{{1 + G(s)}} = 
-    \frac{{{kd} s^2 + {kp} s + {ki}}}{{s^3 + {round(3 + kd,2)} s^2 + {round(2 + kp,2)} s + {ki}}}
+    \frac{{{kd} s^2 + {kp} s + {ki}}}{{s^3 + {3 + kd} s^2 + {round(2 + kp,2)} s + {ki}}}
 '''
 st.latex(latex_H)
 
@@ -140,7 +150,7 @@ st.write(f"📊 **Sobreimpulso (Overshoot):** {overshoot:.2f}%")
 st.write(f"📊 **Error en Estado Estacionario:** {steady_state_error:.2f}")
 
 #Generar insights 
-if st.button("🔍 Generar Análisis desde el Gráfico"):
-    analysis = generate_analysis_from_graph(settling_time, rise_time, overshoot, steady_state_error)
-    st.subheader("📊 Análisis de la Respuesta del Sistema desde el Gráfico")
+if st.button("🔍 Generar Análisis desde los Datos"):
+    analysis = generate_analysis_from_data(t, y, kp, ki, kd)
+    st.subheader("📊 Análisis de la Respuesta del Sistema desde los Datos")
     st.write(analysis)
