@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 import google.generativeai as genai
 
 # configuracion del modelo 
-api = 'AIzaSyAJvyI8VLdVlkaMoeNw4nSWt253zpLWbgw'
-
+api = st.secrets['auth_api']
 genai.configure(api_key= api)
 
 generation_config = {
