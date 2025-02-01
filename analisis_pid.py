@@ -49,8 +49,8 @@ def generate_analysis_from_data(t, y, kp, ki, kd):
     - **Tiempo (t)**: {list(t)}
     - **Respuesta (y)**: {list(y)}
 
-    Analiza estos resultados y proporciona recomendaciones para mejorar el rendimiento del sistema. Considera los siguientes puntos en tu análisis:
-    1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema.
+    Analiza estos resultados y proporciona recomendaciones para mejorar el rendimiento del sistema. Considera los siguientes puntos en tu análisis, recuerda eres un ingeniero experto en automatización:
+    1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema, ojo si el sistema no alcanza el estado estacionario 1 debes mostrar la diferencia y explicar el porqué no está alcanzado.
     2. Sugiere ajustes a los parámetros PID (Kp, Ki, Kd) para mejorar la estabilidad, el tiempo de respuesta y reducir el sobreimpulso.
     En lo posible recomienda valores de (Kp, Ki, Kd) para repsuestas rapidas, más lentas y agresivas del sistema, ojo deben estar en el rango propuesto de valores
     3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
