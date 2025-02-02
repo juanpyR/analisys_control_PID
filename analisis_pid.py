@@ -24,25 +24,13 @@ model = genai.GenerativeModel(
 # Enviar esta información a la IA (Gemini) para un análisis detallado
 def generate_analysis_from_data(t, y, kp, ki, kd):
     """Genera un análisis del sistema usando IA basado en los datos de la respuesta y el tiempo."""
-    
-    # Calcular parámetros a partir de la respuesta
-    settling_time = t[np.where(np.abs(y - y[-1]) < 0.02 * y[-1])[0][0]]
-    rise_time = t[np.where(y >= 0.9 * y[-1])[0][0]]
-    overshoot = (max(y) - y[-1]) / y[-1] * 100
-    steady_state_error = y[-1] - y[-1]  # Se puede ajustar para otros tipos de error si es necesario
-    
+  
     # Crear el prompt para la IA
     prompt = f"""
     Se ha simulado un sistema de control PID en lazo cerrado con los siguientes parámetros PID:
     - **Kp (Proporcional)**: {kp}
     - **Ki (Integral)**: {ki}
     - **Kd (Derivativo)**: {kd}
-
-    Los datos de la respuesta del sistema a un escalón son los siguientes:
-    - **Tiempo de Asentamiento**: {settling_time:.2f} segundos
-    - **Tiempo de Subida**: {rise_time:.2f} segundos
-    - **Sobreimpulso**: {overshoot:.2f}%
-    - **Error en Estado Estacionario**: {steady_state_error:.2f}
 
     Los vectores de tiempo (t) y respuesta (y) son los siguientes:
 
