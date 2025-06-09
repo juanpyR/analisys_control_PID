@@ -46,7 +46,6 @@ def generate_analysis_from_data(t, y, kp, ki, kd):
     3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
     4. Analiza las implicaciones de cada parámetro para la estabilidad y el comportamiento transitorio del sistema.
     """
-    model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(prompt)
     return response.text
 
