@@ -2,52 +2,54 @@ import streamlit as st
 import numpy as np
 import scipy.signal as signal
 import matplotlib.pyplot as plt
-import google.generativeai as genai
+from openai import OpenAI
 
 # configuracion del modelo 
+client = OpenAI(
 api = st.secrets['auth_api']
-genai.configure(api_key= api)
-
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 40,
-  "max_output_tokens": 500,
-  "response_mime_type": "text/plain",
-}
-
-model = genai.GenerativeModel(
-  model_name="gemini-2.0-pro-exp",
-  generation_config=generation_config,
+base_url="https://api.groq.com/openai/v1"
 )
+model_name = "gemma2-9b-it"  # modelo de prueba 
 
-# Enviar esta información a la IA (Gemini) para un análisis detallado
+def mensaje_IA(prompt):
+    messages = [
+        {"role": "system", "content": "Eres un experto y un asistente útil para análisis de sistemas PID."},
+        {"role": "user", "content": prompt}
+    ]
+    try:
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=messages,
+            max_tokens=700,
+            temperature=1.0
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        st.error(f"Error al llamar a la API: {e}")
+        return None
+    
 def generate_analysis_from_data(t, y, kp, ki, kd):
-    """Genera un análisis del sistema usando IA basado en los datos de la respuesta y el tiempo."""
-  
-    # Crear el prompt para la IA
-    prompt = f"""
+    prompt_user = f"""
     Se ha simulado un sistema de control PID en lazo cerrado con los siguientes parámetros PID:
     - **Kp (Proporcional)**: {kp}
     - **Ki (Integral)**: {ki}
     - **Kd (Derivativo)**: {kd}
 
-    Los vectores de tiempo (t) y respuesta (y) son los siguientes:
+    Los vectores de tiempo y respuesta son los siguientes:
 
-    - **Tiempo (t)**: {list(t)}
-    - **Respuesta (y)**: {list(y)}
+    - **Tiempo**: {list(t)}
+    - **Respuesta**: {list(y)}
+Analiza el sistema y responde con un resumen a cada pregunta:
+1. ¿Llega a estado estacionario 1? Si no, ¿cuál es la diferencia y el % de error?
+2. ¿La respuesta es rápida, lenta o agresiva?
+3. ¿Qué ajustes PID recomiendas para una respuesta mejor?
+4. ¿Qué harías si hay ruido?
+5. ¿Qué efecto tiene cada parámetro?
+"""
 
-    Analiza estos resultados y proporciona recomendaciones para mejorar el rendimiento del sistema. Considera los siguientes puntos en tu análisis, recuerda eres un ingeniero experto en automatización:
-    1. Evalúa cómo estos parámetros afectan el rendimiento general del sistema, ojo si el sistema no alcanza el estado estacionario 1 debes mostrar la diferencia y explicar el porqué no está alcanzado siendo que el valor y es menor a 1 (1 es el valor en E.E debes compararlos con los valores y en el tiempo de asentamiento t). además
-    si el valor llega en estado estacionario 1 indica si hay una respuesta rápida, lenta o agresiva debes mencionarla ya que son muy notorias cuando ocurren, de lo contrario el análisis debe ser cuando el valor en estado estacionario no llega a 1, y recuerda darme la diferencia
-    entre el valor 1 y el valor actual en estado estacionario y dame el % de error. Sin embargo, si el sistema tiene una respuesta muy cercana de uno debes destacarlo.
-    2. Sugiere ajustes a los parámetros PID (Kp, Ki, Kd) para mejorar la estabilidad, el tiempo de respuesta y reducir el sobreimpulso.
-    En lo posible recomienda valores de (Kp, Ki, Kd) para respuestas rápidas, más lentas y agresivas del sistema, ojo deben estar en el rango propuesto de valores
-    3. ¿Qué ajustes serían necesarios si el sistema experimentara más ruido o perturbaciones?
-    4. Analiza las implicaciones de cada parámetro para la estabilidad y el comportamiento transitorio del sistema.
-    """
-    response = model.generate_content(prompt)
-    return response.text
+    text = mensaje_IA(prompt_user)  #respuesta de IA
+    return text
+
 
 # Interfaz en Streamlit
 st.title("⚙️ Análisis de Control PID")
