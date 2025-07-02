@@ -16,7 +16,7 @@ model_name = "gemma2-9b-it"  # modelo de prueba
 
 def mensaje_IA(prompt):
     messages = [
-        {"role": "system", "content": "Eres un experto y un asistente útil para análisis de sistemas PID."},
+        {"role": "system", "content": "Eres un experto y un asistente útil para análisis de sistemas PID y solo debes darme lo que te pido."},
         {"role": "user", "content": prompt}
     ]
     try:
