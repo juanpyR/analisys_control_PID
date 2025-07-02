@@ -4,9 +4,12 @@ import scipy.signal as signal
 import matplotlib.pyplot as plt
 from openai import OpenAI
 
+# ingresa tu API
+api_model = st.secrets['auth_api']
+
 # configuracion del modelo 
 client = OpenAI(
-api = st.secrets['auth_api']
+api = api_model
 base_url="https://api.groq.com/openai/v1"
 )
 model_name = "gemma2-9b-it"  # modelo de prueba 
