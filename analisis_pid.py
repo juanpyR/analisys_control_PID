@@ -33,22 +33,16 @@ def mensaje_IA(prompt):
     
 def generate_analysis_from_data(t, y, kp, ki, kd):
     prompt_user = f"""
-    Se ha simulado un sistema de control PID en lazo cerrado con los siguientes parámetros PID:
-    - **Kp (Proporcional)**: {kp}
-    - **Ki (Integral)**: {ki}
-    - **Kd (Derivativo)**: {kd}
+Sistema PID en lazo cerrado con parámetros: Kp={kp}, Ki={ki}, Kd={kd}.
+Respuesta desde t={t[0]:.2f}s hasta t={t[-1]:.2f}s, con {len(t)} muestras.
+Valores: inicio={y[0]:.3f}, máximo={max(y):.3f}, final={y[-1]:.3f}.
 
-    Los vectores de tiempo y respuesta son los siguientes:
-
-    - **Tiempo**: {list(t)}
-    - **Respuesta**: {list(y)}
-Analiza el sistema y responde con un resumen a cada pregunta:
-1. ¿Llega a estado estacionario 1? Si no, ¿cuál es la diferencia y el % de error?
+Analiza el sistema y responde:
+1. ¿Llega a estado estacionario 1? Si no, ¿cuál es la diferencia y % de error?
 2. ¿La respuesta es rápida, lenta o agresiva?
-3. ¿Qué ajustes PID recomiendas para una respuesta mejor?
+3. ¿Qué ajustes PID recomiendas para mejorar?
 4. ¿Qué harías si hay ruido?
-5. ¿Qué efecto tiene cada parámetro?
-"""
+5. ¿Qué efecto tiene cada parámetro? """
 
     text = mensaje_IA(prompt_user)  #respuesta de IA
     return text
