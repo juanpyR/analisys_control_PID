@@ -30,19 +30,27 @@ def mensaje_IA(prompt):
     except Exception as e:
         st.error(f"Error al llamar a la API: {e}")
         return None
-    
+# convertir los numeros a texto        
+def vector_to_str(vec, decimals=3):
+    return ", ".join(f"{v:.{decimals}f}" for v in vec)
+
 def generate_analysis_from_data(t, y, kp, ki, kd):
-    prompt_user = f"""
+    t_str = vector_to_str(t)
+    y_str = vector_to_str(y)
+    prompt_user = prompt_user = f"""
 Sistema PID en lazo cerrado con parámetros: Kp={kp}, Ki={ki}, Kd={kd}.
-Respuesta desde t={t[0]:.2f}s hasta t={t[-1]:.2f}s, con {len(t)} muestras.
-Valores: inicio={y[0]:.3f}, máximo={max(y):.3f}, final={y[-1]:.3f}.
+Respuesta del sistema en tiempo:
+
+Tiempo (s): [{t_str}]
+Respuesta: [{y_str}]
 
 Analiza el sistema y responde:
 1. ¿Llega a estado estacionario 1? Si no, ¿cuál es la diferencia y % de error?
 2. ¿La respuesta es rápida, lenta o agresiva?
 3. ¿Qué ajustes PID recomiendas para mejorar?
 4. ¿Qué harías si hay ruido?
-5. ¿Qué efecto tiene cada parámetro? """
+5. ¿Qué efecto tiene cada parámetro?
+"""
 
     text = mensaje_IA(prompt_user)  #respuesta de IA
     return text
