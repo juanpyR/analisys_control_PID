@@ -9,7 +9,7 @@ api_model = st.secrets['auth_api']
 
 # configuracion del modelo 
 client = OpenAI(
-api = api_model
+api = api_model ,
 base_url="https://api.groq.com/openai/v1"
 )
 model_name = "gemma2-9b-it"  # modelo de prueba 
